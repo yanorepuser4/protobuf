@@ -2308,19 +2308,19 @@ class TokenizerTest(unittest.TestCase):
 
     msg = unittest_pb2.TestAllTypes(
         repeatedgroup=[unittest_pb2.TestAllTypes.RepeatedGroup(a=1)])
-    if api_implementation.Type() == 'upb':
-      self.assertEqual('repeatedgroup {\n  a: 1\n}\n', str(msg))
-    else:
-      self.assertEqual('RepeatedGroup {\n  a: 1\n}\n', str(msg))
+      if api_implementation.Type() == 'upb':
+        self.assertEqual('repeatedgroup {\n  a: 1\n}\n', str(msg))
+      else:
+        self.assertEqual('RepeatedGroup {\n  a: 1\n}\n', str(msg))
 
   def testPrintGroupLikeDelimited(self):
     msg = unittest_delimited_pb2.TestDelimited(
         grouplike=unittest_delimited_pb2.TestDelimited.GroupLike(a=1)
     )
-    if api_implementation.Type() == 'upb':
-      self.assertEqual(str(msg), 'grouplike {\n  a: 1\n}\n')
-    else:
-      self.assertEqual(str(msg), 'GroupLike {\n  a: 1\n}\n')
+      if api_implementation.Type() == 'upb':
+        self.assertEqual(str(msg), 'grouplike {\n  a: 1\n}\n')
+      else:
+        self.assertEqual(str(msg), 'GroupLike {\n  a: 1\n}\n')
 
   def testPrintGroupLikeDelimitedExtension(self):
     msg = unittest_delimited_pb2.TestDelimited()
@@ -2407,7 +2407,6 @@ class TokenizerTest(unittest.TestCase):
     msg = unittest_delimited_pb2.TestDelimited()
     with self.assertRaises(text_format.ParseError):
       text_format.Parse('NotGroupLikeScope { b:1 }', msg)
-
 
 # Tests for pretty printer functionality.
 @_parameterized.parameters((unittest_pb2), (unittest_proto3_arena_pb2))
