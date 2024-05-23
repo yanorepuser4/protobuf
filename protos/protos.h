@@ -242,6 +242,23 @@ absl::Status SetExtension(upb_Message* message, upb_Arena* message_arena,
                           const upb_MiniTableExtension* ext,
                           const upb_Message* extension);
 
+template <typename T>
+struct RemovePtr;
+
+template <typename T>
+struct RemovePtr<Ptr<T>> {
+  using type = T;
+};
+
+template <typename T>
+struct RemovePtr<T*> {
+  using type = T;
+};
+
+template <typename T, typename U = typename RemovePtr<T>::type,
+          typename = std::enable_if_t<!std::is_const_v<U>>>
+using PtrOrRaw = T;
+
 }  // namespace internal
 
 template <typename T>
@@ -280,14 +297,10 @@ void DeepCopy(const T* source_message, T* target_message) {
 }
 
 template <typename T>
-void ClearMessage(Ptr<T> message) {
-  static_assert(!std::is_const_v<T>, "");
-  upb_Message_Clear(internal::GetInternalMsg(message), T::minitable());
-}
-
-template <typename T>
-void ClearMessage(T* message) {
-  ClearMessage(protos::Ptr(message));
+void ClearMessage(internal::PtrOrRaw<T> message) {
+  auto ptr = Ptr(message);
+  auto minitable = internal::GetMiniTable(ptr);
+  upb_Message_Clear(internal::GetInternalMsg(ptr), minitable);
 }
 
 class ExtensionRegistry {

@@ -1157,6 +1157,49 @@ TEST(CppGeneratedCode, ClearMessage) {
   EXPECT_FALSE(::protos::HasExtension(&model, theme));
 }
 
+TEST(CppGeneratedCode, CanInvokeClearMessageWithPtr) {
+  // Fill model.
+  TestModel model;
+  model.set_int64(5);
+  auto new_child = model.add_child_models();
+  // Clear using Ptr<T>
+  auto ptr = ::protos::Ptr<TestModel>(&model);
+  ::protos::ClearMessage(ptr);
+  // Successful clear
+  EXPECT_FALSE(model.has_int64());
+}
+
+TEST(CppGeneratedCode, CanInvokeClearMessageWithRawPtr) {
+  // Fill model.
+  TestModel model;
+  model.set_int64(5);
+  auto new_child = model.add_child_models();
+  // Clear using T*
+  ::protos::ClearMessage(&model);
+  // Successful clear
+  EXPECT_FALSE(model.has_int64());
+}
+
+TEST(CppGeneratedCode, CannotInvokeClearMessageWithConstPtr) {
+  auto mutable_ptr = (Requires<::protos::Ptr<TestModel>>(
+      [](auto x) -> decltype(::protos::ClearMessage(x)) {}));
+  EXPECT_TRUE(mutable_ptr);
+
+  auto const_ptr = (Requires<::protos::Ptr<const TestModel>>(
+      [](auto x) -> decltype(::protos::ClearMessage(x)) {}));
+  EXPECT_FALSE(const_ptr);
+}
+
+TEST(CppGeneratedCode, CannotInvokeClearMessageWithConstRawPtr) {
+  auto mutable_raw_ptr = (Requires<TestModel*>(
+      [](auto x) -> decltype(::protos::ClearMessage(x)) {}));
+  EXPECT_TRUE(mutable_raw_ptr);
+
+  auto const_raw_ptr = (Requires<const TestModel*>(
+      [](auto x) -> decltype(::protos::ClearMessage(x)) {}));
+  EXPECT_FALSE(const_raw_ptr);
+}
+
 TEST(CppGeneratedCode, DeepCopy) {
   // Fill model.
   TestModel model;
